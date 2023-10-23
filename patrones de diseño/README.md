@@ -1,58 +1,102 @@
-<!-- ->Patron creacional Abstract Factory
+Abstract Factory
+
+=>Que es?
+    ->Es un patron de diseño creacional, que proporciona una interfaz para crear familias de objetos relacionados, o dependientes, sin especificar sus clases concretas. Es usado por muchos frameworks y bibliotecas.
+=>Cuando aplicarlo?
+    ->Cuando el sistema debe ser independiente de como se crean sus objetos.
+    ->Cuando en una familia de productos relacionados, estos estan diseñados para ser usados juntos.
+=>Pros
+    ->Se evita un acoplamiento fuerte entre productos concretos y el codigo cliente.
+    ->Tener la certeza de que los productos que obtienes de una fabrica son compatibles entre si.
+    ->Es facil introducir nuevas variantes de productos sin romper el codigo cliente existente.
+    ->Es posible que el codigo sea mas facil de mantener.
+=>Contras
+    ->El codigo puede complicarse de mas debido a la introduccion de muchas clases e interfaces.
+    ->Agregar nuevos productos implicaria modificar tanto las fabricas abstractas como las concretas.
 
 
-=>Patron de diseño que provee una interficie para crear familias
-de objetos relacionados o dependientes sin especificar su clase concreta.
-=>Patron creacional objetos relacionados por temas, por ejemplo. No se especifica su clase concreta; se sigue trabajando con abstracciones. No dependes de una clase concreta, se usa la abstracción. Conseguimos trabajar de forma independiente (factory) a las implementaciones concretas de cada clase. Nos permite crear relaciones entre objetos de forma que no se puedan utilizar de forma indiscriminada. Te protege de utilizar sin querer objetos que no deberian utilizar juntos.
-=>En este ejemplo, tenemos una fabrica de Enemigos -->
+Ejemplo:
+Crearemos una Fabrica, que sera la Abstract Factory del sistema. Tendra dos metodos, uno para crear TV, y otro para crear Smartphone. Existen dos fabricas concretas que van a implementar esta abstract factory; por un lado una fabrica llamada fabrica Xiaomi, que al implementar la fabrica va a redefinir los metodos; en crear TV va a devolver TV Xiaomi, y en crear Smartphone va a devolver Smartphone Xiaomi. La otra fabrica concreta es una fabrica Samsung, va a redefinir los metodos devolviendo TV Samsung, y Smartphone Samsung.
+Uno de los productos es TV, por tanto definimos su clase abstracta. De aqui se derivan dos productos concretos; uno que es TV Xiaomi, que implementa TV, y define otra vez la funcion TV, que va a devolver 'TV Xiaomi'. Ocurrira lo mismo con el TV Samsung, que de nuevo implementa y redefine la funcion TV devolviendo 'TV Samsung'.
+El otro producto que tenemos es Smartphone, que repetira el mismo proceso que TV, dando como productos concretos 'Smartphone Xiaomi', y 'Smartphone Samsung'
 
-interface EnemyFactory{
-    createNormalEnemy(): Enemy;
-    createBossEnemy(): Enemy;
+// Clase abstracta para los productos de TV
+abstract class TV {
+  abstract show(): string;
 }
 
-<!-- =>Definimos el Enemy, con una clase abstracta, por lo que se va a tener que redefinir, al menos uno de
-sus metodos en una implementacion real: -->
-
-abstract class Enemy {
-    abstract attack(): void;
+// Clase abstracta para los productos de Smartphone
+abstract class Smartphone {
+  abstract display(): string;
 }
 
-<!-- =>Implementacion de la clase abstracta: -->
-
-class NormalEnemy extends Enemy {
-    attack(): void {
-        console.log('Enemigo nivel normal ataca!');
-    }
+// Fábrica abstracta
+abstract class FabricaAbstracta {
+  abstract crearTV(): TV;
+  abstract crearSmartphone(): Smartphone;
 }
 
-class BossEnemy extends Enemy {
-    attack(): void{
-        console.log('Enemigo nivel boss ataca!');
-    }
+// Fábrica concreta Xiaomi
+class FabricaXiaomi extends FabricaAbstracta {
+  crearTV(): TV {
+    return new TVXiaomi();
+  }
+
+  crearSmartphone(): Smartphone {
+    return new SmartphoneXiaomi();
+  }
 }
 
-<!-- =>Creamos la fabrica: -->
+// Fábrica concreta Samsung
+class FabricaSamsung extends FabricaAbstracta {
+  crearTV(): TV {
+    return new TVSamsung();
+  }
 
-class FactoriaEnemigos implements EnemyFactory {
-    public crearNormalEnemy(): Enemy {
-        return new NormalEnemy();
-    }
-    public crearBossEnemy(): Enemy {
-        return new BossEnemy();
-    }
+  crearSmartphone(): Smartphone {
+    return new SmartphoneSamsung();
+  }
 }
 
-<!-- Estos enemigos, NormalEnemy y BossEnemy no tienen una clase definida. Implementamos en una funcion con EnemyFactory como parametro para conseguir abstraccion.
-En la creacion del enemigo, podemos llamar al metodo de creacion implementdo en la fabrica. De la misma manera, podemos crear un enemigo tipo Boss. La clase abstracta nos permite acceder a sus propios metodos (se indica en la funcion). -->
-
-
-
-function creacionEnemies(factory: EnemyFactory): void {
-    const normalEnemy = factory.crearNormalEnemy();
-    normalEnemy.attack();
-    
-    const bossEnemy = factory.crearBossEnemy();
-    bossEnemy.attack();
-
+// Productos concretos
+class TVXiaomi extends TV {
+  show(): string {
+    return 'TV Xiaomi';
+  }
 }
+
+class TVSamsung extends TV {
+  show(): string {
+    return 'TV Samsung';
+  }
+}
+
+class SmartphoneXiaomi extends Smartphone {
+  display(): string {
+    return 'Smartphone Xiaomi';
+  }
+}
+
+class SmartphoneSamsung extends Smartphone {
+  display(): string {
+    return 'Smartphone Samsung';
+  }
+}
+
+// Ejemplo de uso
+function main() {
+  const fabricaXiaomi = new FabricaXiaomi();
+  const tvXiaomi = fabricaXiaomi.crearTV();
+  const smartphoneXiaomi = fabricaXiaomi.crearSmartphone();
+
+  const fabricaSamsung = new FabricaSamsung();
+  const tvSamsung = fabricaSamsung.crearTV();
+  const smartphoneSamsung = fabricaSamsung.crearSmartphone();
+
+  console.log(tvXiaomi.show());
+  console.log(smartphoneXiaomi.display());
+  console.log(tvSamsung.show());
+  console.log(smartphoneSamsung.display());
+}
+
+main();
